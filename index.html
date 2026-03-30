@@ -1,1 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web Pairing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        button {
+            background-color: #667eea;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #764ba2;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #qrCode {
+            margin-top: 20px;
+            display: none;
+        }
+        #pairingCodeDisplay {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            display: none;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhatsApp Web Pairing</h1>
+        <button id="pairingButton">Get Pairing Code</button>
+        <div id="pairingCodeDisplay"></div>
+        <div id="qrCode"></div>
+        <div id="error" class="error"></div>
+    </div>
 
+    <script>
+        document.getElementById('pairingButton').addEventListener('click', async function() {
+            const button = this;
+            const errorDiv = document.getElementById('error');
+            const pairingCodeDisplay = document.getElementById('pairingCodeDisplay');
+            const qrCodeDiv = document.getElementById('qrCode');
+
+            button.disabled = true;
+            button.textContent = 'Loading...';
+            errorDiv.textContent = '';
+            pairingCodeDisplay.style.display = 'none';
+            qrCodeDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/pairing-code');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch pairing code');
+                }
+                const data = await response.json();
+
+                // Display pairing code
+                pairingCodeDisplay.textContent = `Pairing Code: ${data.pairingCode}`;
+                pairingCodeDisplay.style.display = 'block';
+
+                // Display QR code if available
+                if (data.qrCode) {
+                    qrCodeDiv.innerHTML = `<img src="${data.qrCode}" alt="QR Code" />`;
+                    qrCodeDiv.style.display = 'block';
+                }
+            } catch (error) {
+                errorDiv.textContent = `Error: ${error.message}`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Get Pairing Code';
+            }
+        });
+    </script>
+</body>
+</html>
