@@ -1,28 +1,18 @@
-const express = require('express');
-const qrcode = require('qrcode');
-const path = require('path');
-const app = express();
-const PORT = 3000;
+// Updated code to fetch pairing codes from Onrender.com API
 
-// Serve static files from current directory
-app.use(express.static(path.join(__dirname)));
-
-// Function to generate a pairing code
-function generatePairingCode() {
-    return 'PAIRING_CODE_' + Math.random().toString(36).substring(2, 15);
-}
-
-// Endpoint to generate and return pairing code with QR code
-app.get('/pairing-code', async (req, res) => {
+const fetchPairingCodes = async () => {
     try {
-        const pairingCode = generatePairingCode();
-        const qrCodeDataUrl = await qrcode.toDataURL(pairingCode);
-        res.json({ pairingCode, qrCode: qrCodeDataUrl });
+        const response = await fetch('https://api.onrender.com/pairing-codes');
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        console.log('Pairing Codes:', data);
+        // Handle the pairing codes as needed
     } catch (error) {
-        res.status(500).json({ error: 'Failed to generate pairing code and QR code' });
+        console.error('Error fetching pairing codes:', error);
     }
-});
+};
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+// Call the function
+fetchPairingCodes();
