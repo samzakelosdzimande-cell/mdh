@@ -1,15 +1,14 @@
-const express = require('express');
-const router = express.Router();
+// Forward pairing codes to Onrender.com API
 
-// Endpoint to generate and return pairing codes for WhatsApp Web authentication
-router.get('/pairing-code', (req, res) => {
-    const pairingCode = generatePairingCode(); // Function to generate pairing code
-    res.json({ pairingCode });
-});
+const axios = require('axios');
 
-function generatePairingCode() {
-    // Logic to generate a pairing code, this is a placeholder
-    return 'PAIRING_CODE_' + Math.random().toString(36).substring(2, 15);
+async function forwardPairingCode(pairingCode) {
+    try {
+        const response = await axios.post('https://api.onrender.com/forward', { code: pairingCode });
+        console.log('Pairing code forwarded:', response.data);
+    } catch (error) {
+        console.error('Error forwarding pairing code:', error);
+    }
 }
 
-module.exports = router;
+module.exports = { forwardPairingCode };
